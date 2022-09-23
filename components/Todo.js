@@ -9,7 +9,7 @@ import { useState, useContext } from "react";
 export default function Todo({ todo }) {
   const { id, title, description, createdDate } = todo;
   // console.log(createdDate);
-  const { showAlert } = useContext(TodoContext);
+  const { showAlert,setTodo } = useContext(TodoContext);
   const handleDelete = async (id,e) => {
     e.preventDefault();
     const ref = doc(db, "todos", id);
@@ -20,6 +20,7 @@ export default function Todo({ todo }) {
     <ListItem
       sx={{ mt: 3, boxShadow: 3 }}
       style={{ backgroundColor: "#fafafa" }}
+      onClick={()=>setTodo({id,title,description,createdDate})}
       secondaryAction={
         <>
           <IconButton onClick={(e) => handleDelete(id, e)}>

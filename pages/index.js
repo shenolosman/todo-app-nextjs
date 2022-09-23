@@ -10,7 +10,7 @@ export default function Home() {
   const [open, setOpen] = useState(false);
   const [alertType, setAlertType] = useState("success");
   const [alertMessage, setAlertMessage] = useState("");
-
+  const [todo, setTodo] = useState({ title: "", description: "" });
   const showAlert = (type, msg) => {
     setAlertMessage(msg);
     setAlertType(type);
@@ -25,7 +25,7 @@ export default function Home() {
   };
 
   return (
-    <TodoContext.Provider value={{ showAlert }}>
+    <TodoContext.Provider value={{ showAlert,todo,setTodo }}>
       <Container maxWidth="md">
         <Head>
           <title>ToDo App</title>

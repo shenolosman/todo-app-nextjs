@@ -1,27 +1,53 @@
 import { Button, TextField, Typography } from "@mui/material";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { useState, useContext } from "react";
+import { addDoc, collection, serverTimestamp, updateDoc, doc } from "firebase/firestore";
+import { useState, useContext, useRef, useEffect } from "react";
 import { db } from "../firebase/config";
 import { TodoContext } from "../context/TodoContext";
 export default function TodoForm() {
-  const [todo, setTodo] = useState({ title: "", description: "" });
-  const { showAlert } = useContext(TodoContext);
+  const { showAlert, todo, setTodo } = useContext(TodoContext);
+  const inputRef = useRef();
+  useEffect(() => {
+    const clickControl = (e) => {
+      if (!inputRef.current.contains(e.target)) {
+        console.log("clicked the input");
+        setTodo({ title: "", description: "" });
+      } else {
+        console.log("Clicked somewhere else");
+      }
+    };
+    document.addEventListener("mousedown", clickControl);
+    return () => {
+      document.removeEventListener("mousedown", clickControl);
+    };
+  }, []);
   const handleClick = async (e) => {
     e.preventDefault();
     //console.log(todo)
     if (todo.title == "" || todo.description == "") {
-        showAlert("error","Title or description can't be empty!")
+      showAlert("error", "Title or description can't be empty!");
       return;
     }
-    const ref = collection(db, "todos");
-    const docRef = await addDoc(ref, { ...todo, createdDate: serverTimestamp() });
-    // console.log(docRef.id)
-    setTodo({ title: "", description: "" });
-    // alert(`${todo.title} added!`)
-    showAlert("success", `${todo.title} added!`);
+    if (todo?.hasOwnProperty("id")) {
+      //update
+      const ref = doc(db, "todos", todo.id);
+      const newTodo = { title: todo.title, description: todo.description, lastUpdateDate: serverTimestamp() };
+
+      updateDoc(ref, newTodo);
+      setTodo({ title: "", description: "" });
+      showAlert("success", "Todo updated!");
+    } else {
+      //add
+      const ref = collection(db, "todos");
+      const docRef = await addDoc(ref, { ...todo, createdDate: serverTimestamp() });
+      // console.log(docRef.id)
+      setTodo({ title: "", description: "" });
+      // alert(`${todo.title} added!`)
+      showAlert("success", `${todo.title} added!`);
+    }
   };
   return (
-    <div>
+    <div ref={inputRef}>
+      {/* <pre>{JSON.stringify(todo, null, `\t`)}</pre> */}
       <Typography sx={{ mt: 3, fontWeight: "bold" }} variant="h5" color="darkgrey">
         Add Todo
       </Typography>
@@ -42,9 +68,15 @@ export default function TodoForm() {
         value={todo.description}
       ></TextField>
 
-      <Button sx={{ mt: 3 }} variant="outlined" color="success" onClick={handleClick}>
-        Add
-      </Button>
+      {todo?.hasOwnProperty("id") ? (
+        <Button sx={{ mt: 3 }} variant="outlined" color="warning" onClick={handleClick}>
+          Update
+        </Button>
+      ) : (
+        <Button sx={{ mt: 3 }} variant="outlined" color="success" onClick={handleClick}>
+          Add
+        </Button>
+      )}
     </div>
   );
 }
