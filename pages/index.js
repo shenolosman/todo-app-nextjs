@@ -1,6 +1,7 @@
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
 import TodoList from "../components/TodoList";
+import TodoForm from "../components/TodoForm"
 import { Container } from "@mui/material";
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
+        <TodoForm />
         <TodoList />
       </main>
 
