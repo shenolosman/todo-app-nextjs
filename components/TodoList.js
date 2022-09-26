@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import React, { useState, useEffect, useContext } from "react";
+import { collection, onSnapshot, query, orderBy, where } from "firebase/firestore";
 import { db } from "../firebase/config";
 import Todo from "./Todo";
 import { Typography } from "@mui/material";
-
+import { AuthContext } from "../context/AuthContext";
 const TodoList = () => {
   const [todos, setTodos] = useState([]);
-
+  const { currentUser } = useContext(AuthContext);
   useEffect(() => {
     const ref = collection(db, "todos");
-    const q = query(ref, orderBy("createdDate", "desc"));
+    const q = query(ref,where("userMail","==",currentUser?.email), orderBy("createdDate", "desc"));
 
     const unsub = onSnapshot(q, (snap) => {
       setTodos(

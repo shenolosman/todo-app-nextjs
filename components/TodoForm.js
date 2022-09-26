@@ -3,8 +3,10 @@ import { addDoc, collection, serverTimestamp, updateDoc, doc } from "firebase/fi
 import { useState, useContext, useRef, useEffect } from "react";
 import { db } from "../firebase/config";
 import { TodoContext } from "../context/TodoContext";
+import { AuthContext } from "../context/AuthContext";
 export default function TodoForm() {
   const { showAlert, todo, setTodo } = useContext(TodoContext);
+  const { currentUser } = useContext(AuthContext);
   const inputRef = useRef();
   useEffect(() => {
     const clickControl = (e) => {
@@ -38,7 +40,7 @@ export default function TodoForm() {
     } else {
       //add
       const ref = collection(db, "todos");
-      const docRef = await addDoc(ref, { ...todo, createdDate: serverTimestamp() });
+      const docRef = await addDoc(ref, { ...todo, userMail:currentUser.email,createdDate: serverTimestamp() });
       // console.log(docRef.id)
       setTodo({ title: "", description: "" });
       // alert(`${todo.title} added!`)
